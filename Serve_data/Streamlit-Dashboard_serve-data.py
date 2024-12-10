@@ -108,14 +108,14 @@ with col1_1:
     st.line_chart(order_time,
                 x=select_time, 
                 y=["Diff_Minute", "Standard_Staff"],
-                color=["#BFECFF", "#8174A0"])
+                color=["#FFCF9D", "#8174A0"])
 
 with col1_2:
     st.subheader(f"{menu} Order Volume Line")
     st.line_chart(order_time,
                 x=select_time, 
                 y=["order_volume"],
-                color=["#FFCF9D"])
+                color=["#BFECFF"])
 
 # 3. ไม่ทราบถึงความพึงพอใจในอาหารแต่ละ Menu ของลูกค้า → เพื่อที่จะสามารถสร้างโปรโมชั่นที่สามารถดึงดูดลูกค้าได้เพิ่มมากขึ้น
 # แสดงปริมาณรวม Order แต่ละ Menu
