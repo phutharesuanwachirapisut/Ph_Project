@@ -167,11 +167,14 @@ with col3_2:
 money = pd.DataFrame(food_drink_df.groupby("Menu")["Price"].sum())
 money.rename(columns={"Price":"Amount"},inplace=True)
 money.reset_index(inplace=True)
+money["Amount"] = pd.to_numeric(money["Amount"], errors="coerce")
 money = money.sort_values("Amount", ascending=False)
+
 
 money_c = pd.DataFrame(food_drink_df.loc[food_drink_df["Category"] == categories.lower()].groupby("Menu")["Price"].sum())
 money_c.rename(columns={"Price":"Amount"},inplace=True)
 money_c.reset_index(inplace=True)
+money_c["Amount"] = pd.to_numeric(money_c["Amount"], errors="coerce")
 money_c = money_c.sort_values("Amount", ascending=False)
 
 col4_1, col4_2 = st.columns([0.7,0.3])
