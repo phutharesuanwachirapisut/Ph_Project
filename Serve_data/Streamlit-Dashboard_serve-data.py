@@ -52,7 +52,10 @@ with st.sidebar:
     
     categories = st.selectbox("Select Categories", ["Food", "Drink"])
     
-
+if categories == "Food":
+    staff="Kitchen Staff"
+else:
+    staff="Drinks Staff"
 # 1. ในช่วงที่มีลูกค้าจำนวนมาก เกิดปัญหาหรือไม่
 # 2. การวางจำนวนพนักงานของผมมีประสิทธิภาพมากน้อยเพียงใด
 # แสดงข้อมูล Time Series ของ Standard_Order_Volume and Standard_Diff_Minute
@@ -78,35 +81,33 @@ if select_time != "Date":
     order_volume_time[select_time] = pd.Categorical(order_volume_time[select_time], categories=dict_time[select_time], ordered=True)
 order_volume_time.sort_values(by = select_time,ascending=True, inplace=True)
 
-# แสดงปริมาณค่า Mean ของ Diff_Minute, Kitchen Staff แต่ละ menu
+# แสดงปริมาณค่า Mean ของ Diff_Minute, Staff แต่ละ menu
 menu_volume = pd.DataFrame(food_drink_df.loc[(food_drink_df["Date"] >= start_date) & 
                                                (food_drink_df["Date"] <= end_date) & 
-                                               (food_drink_df["Menu"] == menu)].groupby([select_time])[["Diff_Minute","Kitchen Staff"]].mean())
+                                               (food_drink_df["Menu"] == menu)].groupby([select_time])[["Diff_Minute",staff]].mean())
 # ทำให้อยู่ในช่วงเดียวกันเพื่อง่ายต่อการวิเคราะห์ในกราฟเดียวกัน
 # ใช้ข้อมูลจาก menu ที่เป็น select box เพื่อนำมาพิจาณาแต่ละ Menu ได้ง่าย
 menu_volume["Standard_Diff_Minute"] = (menu_volume.Diff_Minute - menu_volume.Diff_Minute.mean())/menu_volume.Diff_Minute.std()
-menu_volume["Standard_Kitchen_Staff"] = (menu_volume["Kitchen Staff"] - menu_volume["Kitchen Staff"].mean())/menu_volume["Kitchen Staff"].std()
+menu_volume["Standard_Staff"] = (menu_volume[staff] - menu_volume[staff].mean())/menu_volume[staff].std()
 menu_volume.reset_index(inplace=True)
 
-
 # รวม order_volume_time กับ menu_volume ให้เป็น column เดียวกันเพื่อนำมาเปรียบเทียบ
-order_time = order_volume_time.assign(Diff_Minute = menu_volume["Diff_Minute"],Standard_Diff_Minute = menu_volume["Standard_Diff_Minute"], Kitchen_Staff = menu_volume["Kitchen Staff"],Standard_Kitchen_Staff = menu_volume["Standard_Kitchen_Staff"])
+order_time = order_volume_time.assign(Diff_Minute = menu_volume["Diff_Minute"],Standard_Diff_Minute = menu_volume["Standard_Diff_Minute"], Staff = menu_volume[staff],Standard_Staff = menu_volume["Standard_Staff"])
 if order_quantity != "All": 
     order_time = order_time.loc[order_time["Order_Quantity"] == order_quantity]
 with col02:
-    st.subheader(f"Comparison of Standard Time Difference, Kitchen Staff, and {menu} Order Volume ")
+    st.subheader(f"Comparison of Standard Time Difference, {staff}, and {menu} Order Volume ")
     st.line_chart(order_time,
                 x=select_time, 
-                y=["Standard_Order_Volume", "Standard_Diff_Minute", "Standard_Kitchen_Staff"],
+                y=["Standard_Order_Volume", "Standard_Diff_Minute", "Standard_Staff"],
                 color=["#FFCF9D", "#BFECFF", "#8174A0"])
-
 
 col1_1, col1_2 = st.columns([0.5,0.5])
 with col1_1:
-    st.subheader(f"Comparison of Time Difference, Kitchen Staff in {menu} Order")
+    st.subheader(f"Comparison of Time Difference, {staff} in {menu} Order")
     st.line_chart(order_time,
                 x=select_time, 
-                y=["Diff_Minute", "Kitchen_Staff"],
+                y=["Diff_Minute", "Standard_Staff"],
                 color=["#FFCF9D", "#BFECFF"])
 
 with col1_2:
@@ -204,3 +205,4 @@ with col4_2:
     marker_color=colors_c))
 
     st.plotly_chart(fig_c, use_container_width=True)
+# streamlit run Serve_data/Streamlit-Dashboard_serve-data.py
