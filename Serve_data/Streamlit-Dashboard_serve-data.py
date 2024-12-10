@@ -135,7 +135,13 @@ col3_1, col3_2 = st.columns([0.7,0.3])
 # แสดงข้อมูลที่ Standard ของทุกเมนู แล้วนำมาเทียบกัน ว่าควรตัดเมนูไหนออก (ตัดเมนูที่มีค่าติดลบออก)
 with col3_1:
     st.subheader("Standard All Menu Volume Chart")
-    fdv_color = alt.when(Standard_Order_Volume=food_drink_volume["Standard_Order_Volume"].min()).then(alt.value("#FF8A8A")).otherwise(alt.value("#CCE0AC"))
+    fdv_color = alt.condition(
+        alt.datum.Standard_Order_Volume == food_drink_volume["Standard_Order_Volume"].min(),
+        alt.value("#FF8A8A"),  # Color for the minimum amount
+        alt.value("#CCE0AC")   # Default color
+    )
+    
+
     food_drink_volume_ = alt.Chart(food_drink_volume).mark_bar().encode(
         x='Standard_Order_Volume',
         y=alt.X("Menu", sort=None), color=fdv_color).properties(height=500)
@@ -144,7 +150,12 @@ with col3_1:
 # แสดงข้อมูลที่ Standard ของ Menu ตาม Select Box (Categories) แล้วนำมาเทียบกัน ว่าควรตัดเมนูไหนออก (ตัดเมนูที่มีค่าติดลบออก)
 with col3_2:
     st.subheader(f"Standard {categories} Volume Chart ")
-    fd_color = alt.when(Standard_Order_Volume=fd_volume["Standard_Order_Volume"].min()).then(alt.value("#FF8A8A")).otherwise(alt.value("#CCE0AC"))
+    fd_color = alt.condition(
+        alt.datum.Standard_Order_Volume == fd_volume["Standard_Order_Volume"].min(),
+        alt.value("#FF8A8A"),  # Color for the minimum amount
+        alt.value("#CCE0AC")   # Default color
+    )
+
     fd_ = alt.Chart(fd_volume).mark_bar().encode(x=alt.X("Menu", sort=None),
                                                  y='Standard_Order_Volume', color = fd_color).properties(height=500)
     st.altair_chart(fd_, use_container_width=True)
@@ -166,7 +177,11 @@ money_c = money_c.sort_values("Amount", ascending=False)
 col4_1, col4_2 = st.columns([0.7,0.3])
 with col4_1:
     st.subheader(f"All Menu Amount Chart")
-    money_color = alt.when(Amount=money["Amount"].min()).then(alt.value("#FFDDAE")).otherwise(alt.value("#D4F6FF"))
+    money_color = alt.condition(
+        alt.datum.Amount == money["Amount"].min(),
+        alt.value("#FFDDAE"),  # Color for the minimum amount
+        alt.value("#D4F6FF")   # Default color
+    )
     money_a = alt.Chart(money).mark_bar().encode(
         x='Amount',
         y=alt.X("Menu", sort=None), color=money_color
@@ -176,7 +191,11 @@ with col4_1:
 
 with col4_2:
     st.subheader(f"{categories} Amount Chart")
-    money_c_color = alt.when(Amount=money_c["Amount"].min()).then(alt.value("#FFDDAE")).otherwise(alt.value("#D4F6FF"))
+    money_c_color = alt.condition(
+        alt.datum.Amount == money_c["Amount"].min(),
+        alt.value("#FFDDAE"),  
+        alt.value("#D4F6FF")   
+    )
     money_c_a = alt.Chart(money_c).mark_bar().encode(
         x=alt.X("Menu", sort=None), color=money_c_color,
         y='Amount'
