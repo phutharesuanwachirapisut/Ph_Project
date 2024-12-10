@@ -4,3 +4,4 @@ numpy
 altair
 string
 datetime
+lws
