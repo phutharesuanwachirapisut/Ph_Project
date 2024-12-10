@@ -3,3 +3,4 @@ numpy
 streamlit
 altair
 datetime
+plotly

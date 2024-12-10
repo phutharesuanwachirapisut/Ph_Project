@@ -6,6 +6,7 @@ import numpy as np
 import streamlit as st
 import altair as alt
 import datetime
+import plotly.graph_objects as go
 # Import Data
 df = pd.read_csv("Serve_data/test_data.csv")
 
@@ -136,31 +137,30 @@ col3_1, col3_2 = st.columns([0.7,0.3])
 with col3_1:
     minfdv = food_drink_volume["Standard_Order_Volume"].min()
     st.subheader("Standard All Menu Volume Chart")
-    fdv_color = alt.condition(
-        alt.datum.Standard_Order_Volume == minfdv,
-        alt.value("#FF8A8A"),  # Color for the minimum amount
-        alt.value("#CCE0AC")   # Default color
-    )
-    food_drink_volume_ = alt.Chart(food_drink_volume).mark_bar().encode(
-        x='Standard_Order_Volume',
-        y=alt.X("Menu", sort=None), color=fdv_color).properties(height=500)
-    
-    st.altair_chart(food_drink_volume_, use_container_width=True)
+    colors_fdv = ['#FF8A8A' if volume == minfdv else '#CCE0AC' for volume in food_drink_volume['Standard_Order_Volume']]
+    fig_fdv = go.Figure()
+
+    fig_fdv.add_trace(go.Bar(
+    y=food_drink_volume['Menu'],
+    x=food_drink_volume['Standard_Order_Volume'],
+    marker_color=colors_fdv, orientation='h'))
+
+    st.plotly_chart(fig_fdv, use_container_width=True)
+
 # แสดงข้อมูลที่ Standard ของ Menu ตาม Select Box (Categories) แล้วนำมาเทียบกัน ว่าควรตัดเมนูไหนออก (ตัดเมนูที่มีค่าติดลบออก)
 with col3_2:
     minfd=fd_volume["Standard_Order_Volume"].min()
     st.subheader(f"Standard {categories} Volume Chart ")
-    fd_color = alt.condition(
-        alt.datum.Standard_Order_Volume == minfd,
-        alt.value("#FF8A8A"),  # Color for the minimum amount
-        alt.value("#CCE0AC")   # Default color
-    )
 
-    fd_ = alt.Chart(fd_volume).mark_bar().encode(x=alt.X("Menu", sort=None),
-                                                 y='Standard_Order_Volume', color = fd_color).properties(height=500)
-    st.altair_chart(fd_, use_container_width=True)
+    colors_fd = ['#FF8A8A' if volume == minfd else '#CCE0AC' for volume in fd_volume['Standard_Order_Volume']]
+    fig_fd = go.Figure()
 
+    fig_fd.add_trace(go.Bar(
+    x=fd_volume['Menu'],
+    y=fd_volume['Standard_Order_Volume'],
+    marker_color=colors_fd))
 
+    st.plotly_chart(fig_fd, use_container_width=True)
 
 # 4. มีพนักงานอยู่บางกลุ่มที่เสนอให้ผมลด Menu ที่ไม่จำเป็นออกเพื่อการจัดการที่ง่ายขึ้น
 # พิจารณาจากรายได้ที่ได้
@@ -169,7 +169,6 @@ money.rename(columns={"Price":"Amount"},inplace=True)
 money.reset_index(inplace=True)
 money["Amount"] = pd.to_numeric(money["Amount"], errors="coerce")
 money = money.sort_values("Amount", ascending=False)
-
 
 money_c = pd.DataFrame(food_drink_df.loc[food_drink_df["Category"] == categories.lower()].groupby("Menu")["Price"].sum())
 money_c.rename(columns={"Price":"Amount"},inplace=True)
@@ -181,29 +180,27 @@ col4_1, col4_2 = st.columns([0.7,0.3])
 with col4_1:
     minam=money["Amount"].min()
     st.subheader(f"All Menu Amount Chart")
-    money_color = alt.condition(
-        alt.datum.Amount == minam,
-        alt.value("#FFDDAE"),  # Color for the minimum amount
-        alt.value("#D4F6FF")   # Default color
-    )
-    money_a = alt.Chart(money).mark_bar().encode(
-        x='Amount',
-        y=alt.X("Menu", sort=None), color=money_color
-    ).properties(height=500)
-    
-    st.altair_chart(money_a, use_container_width=True)
+
+    colors = ['#FFDDAE' if amount == minam else '#D4F6FF' for amount in money['Amount']]
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(
+    y=money['Menu'],
+    x=money['Amount'],
+    marker_color=colors, orientation='h'))
+
+    st.plotly_chart(fig, use_container_width=True)
 
 with col4_2:
     minam_c = money_c["Amount"].min()
     st.subheader(f"{categories} Amount Chart")
-    money_c_color = alt.condition(
-        alt.datum.Amount == minam_c,
-        alt.value("#FFDDAE"),  
-        alt.value("#D4F6FF")   
-    )
-    money_c_a = alt.Chart(money_c).mark_bar().encode(
-        x=alt.X("Menu", sort=None), color=money_c_color,
-        y='Amount'
-    ).properties(height=500)
-    
-    st.altair_chart(money_c_a, use_container_width=True)
+
+    colors_c = ['#FFDDAE' if amount == minam_c else '#D4F6FF' for amount in money_c['Amount']]
+    fig_c = go.Figure()
+
+    fig_c.add_trace(go.Bar(
+    x=money_c['Menu'],
+    y=money_c['Amount'],
+    marker_color=colors_c))
+
+    st.plotly_chart(fig_c, use_container_width=True)
